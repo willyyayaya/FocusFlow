@@ -14,7 +14,7 @@ function Register() {
     setError('');
     setSuccess('');
     try {
-      await axios.post('http://localhost:5000/api/auth/register', { username, password });
+      await axios.post('http://localhost:5001/api/auth/register', { username, password });
       setSuccess('註冊成功，請登入');
       setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
