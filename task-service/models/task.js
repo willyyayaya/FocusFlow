@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     description: { type: DataTypes.TEXT },
     date: { type: DataTypes.DATEONLY, allowNull: false },
     completed: { type: DataTypes.BOOLEAN, defaultValue: false },
+    userId: { type: DataTypes.INTEGER, allowNull: false },
   });
 
   return Task;
