@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function PointsStore() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [userPoints, setUserPoints] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -19,38 +21,38 @@ function PointsStore() {
   };
 
   useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const api = getApiInstance();
+        const response = await api.get('/products');
+        setProducts(response.data);
+      } catch (err) {
+        setError('無法載入商品列表');
+      }
+    };
+
+    const fetchUserPoints = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+        
+        const api = getApiInstance();
+        const response = await api.get('/auth/me');
+        setUserPoints(response.data.user.points);
+      } catch (err) {
+        console.error('無法載入用戶點數:', err);
+        setError('無法載入用戶資訊');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchProducts();
     fetchUserPoints();
   }, []);
-
-  const fetchProducts = async () => {
-    try {
-      const api = getApiInstance();
-      const response = await api.get('/products');
-      setProducts(response.data);
-    } catch (err) {
-      setError('無法載入商品列表');
-    }
-  };
-
-  const fetchUserPoints = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-      
-      const api = getApiInstance();
-      const response = await api.get('/auth/me');
-      setUserPoints(response.data.user.points);
-    } catch (err) {
-      console.error('無法載入用戶點數:', err);
-      setError('無法載入用戶資訊');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleRedeem = async (productId, pointsRequired) => {
     if (userPoints < pointsRequired) {
@@ -107,7 +109,15 @@ function PointsStore() {
   return (
     <div className="points-store">
       <div className="store-header">
-        <h2>點數商店</h2>
+        <div className="header-left">
+          <button 
+            className="back-button"
+            onClick={() => navigate('/tasks')}
+          >
+            ← 回到任務行事曆
+          </button>
+          <h2>點數商店</h2>
+        </div>
         <div className="user-points">
           <span>我的點數: {userPoints} 點</span>
         </div>
@@ -178,6 +188,28 @@ function PointsStore() {
           margin-bottom: 30px;
           padding-bottom: 20px;
           border-bottom: 2px solid #eee;
+        }
+        
+        .header-left {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+        }
+        
+        .back-button {
+          background: #2196F3;
+          color: white;
+          border: none;
+          padding: 10px 15px;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 14px;
+          transition: all 0.3s;
+        }
+        
+        .back-button:hover {
+          background: #1976D2;
+          transform: translateY(-1px);
         }
         
         .user-points {

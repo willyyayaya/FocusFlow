@@ -4,6 +4,7 @@ import Login from './Login';
 import Register from './Register';
 import TasksPage from './TasksPage';
 import PointsStore from './PointsStore';
+import QuestsPage from './QuestsPage';
 import PaymentResult from './PaymentResult';
 import './App.css';
 
@@ -15,6 +16,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/tasks" element={<TasksPage />} />
         <Route path="/store" element={<PointsStore />} />
+        <Route path="/quests" element={<QuestsPage />} />
         <Route path="/payment/success" element={<PaymentResult />} />
         <Route path="/payment/error" element={<PaymentResult />} />
         <Route path="/payment/cancel" element={<PaymentResult />} />

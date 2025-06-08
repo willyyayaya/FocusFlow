@@ -16,6 +16,19 @@ exports.createTask = async (req, res) => {
   const { title, description, date } = req.body;
   try {
     const task = await Task.create({ title, description, date, userId });
+    
+    // 觸發每日任務進度更新 - 創建任務
+    try {
+      await axios.post(`http://localhost:5001/api/quests/progress`, {
+        questType: 'create_task',
+        increment: 1
+      }, {
+        headers: { 'Authorization': req.headers.authorization }
+      });
+    } catch (questError) {
+      console.error('Failed to update quest progress:', questError.message);
+    }
+    
     res.status(201).json(task);
   } catch (err) {
     res.status(500).json({ message: 'Create task failed', error: err.message });
@@ -40,15 +53,32 @@ exports.updateTask = async (req, res) => {
     task.completed = completed ?? task.completed;
     await task.save();
     
-    // 如果任務剛被完成，自動加點
+    // 如果任務剛被完成，自動加點並更新每日任務進度
     if (wasNotCompleted && isNowCompleted) {
       try {
         await axios.post(`http://localhost:5001/api/auth/users/${userId}/points/add`, {
           points: 10 // 完成任務獲得 10 點
         });
         console.log(`User ${userId} completed task and earned 10 points`);
+        
+        // 觸發每日任務進度更新 - 完成任務
+        await axios.post(`http://localhost:5001/api/quests/progress`, {
+          questType: 'complete_task',
+          increment: 1
+        }, {
+          headers: { 'Authorization': req.headers.authorization }
+        });
+        
+        // 檢查成就進度 - 任務完成數
+        await axios.post(`http://localhost:5001/api/achievements/check`, {
+          achievementType: 'task_master',
+          currentValue: await Task.count({ where: { userId, completed: true } })
+        }, {
+          headers: { 'Authorization': req.headers.authorization }
+        });
+        
       } catch (pointsError) {
-        console.error('Failed to add points:', pointsError.message);
+        console.error('Failed to add points or update progress:', pointsError.message);
         // 不影響任務更新，只記錄錯誤
       }
     }

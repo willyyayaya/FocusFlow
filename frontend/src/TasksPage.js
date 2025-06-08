@@ -125,6 +125,12 @@ function TasksPage() {
           >
             點數商店
           </button>
+          <button 
+            onClick={() => navigate('/quests')}
+            style={{background:'#9C27B0',color:'white',border:'none',padding:'10px 15px',borderRadius:'5px',cursor:'pointer'}}
+          >
+            每日任務
+          </button>
           <button onClick={handleLogout}>登出</button>
         </div>
       </div>

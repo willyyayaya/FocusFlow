@@ -32,6 +32,27 @@ async function initProducts() {
         imageUrl: 'https://via.placeholder.com/200x200?text=7-11'
       },
       {
+        name: 'Food TCG 基礎卡包',
+        description: '包含5張隨機美食卡牌，稀有度包含普通、稀有卡',
+        pointsRequired: 80,
+        stock: 200,
+        imageUrl: 'https://via.placeholder.com/200x200?text=Food+TCG+Basic'
+      },
+      {
+        name: 'Food TCG 進階卡包',
+        description: '包含5張隨機美食卡牌，保證至少1張稀有卡',
+        pointsRequired: 150,
+        stock: 100,
+        imageUrl: 'https://via.placeholder.com/200x200?text=Food+TCG+Advanced'
+      },
+      {
+        name: 'Food TCG 傳說卡包',
+        description: '包含5張隨機美食卡牌，保證至少1張傳說卡',
+        pointsRequired: 300,
+        stock: 50,
+        imageUrl: 'https://via.placeholder.com/200x200?text=Food+TCG+Legend'
+      },
+      {
         name: '電影票',
         description: '威秀影城電影票一張',
         pointsRequired: 300,
@@ -48,8 +69,12 @@ async function initProducts() {
     ];
     
     for (const productData of products) {
-      await Product.create(productData);
-      console.log(`Created product: ${productData.name}`);
+      try {
+        await Product.create(productData);
+        console.log(`Created product: ${productData.name}`);
+      } catch (err) {
+        console.error(`Error creating product ${productData.name}:`, err.message);
+      }
     }
     
     console.log('Products initialized successfully!');
