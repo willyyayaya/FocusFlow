@@ -38,6 +38,23 @@ exports.verify = (req, res) => {
   });
 };
 
+// 獲取當前用戶資訊
+exports.me = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ 
+      user: { 
+        id: user.id, 
+        username: user.username, 
+        points: user.points 
+      } 
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Get user info failed', error: err.message });
+  }
+};
+
 // 查詢用戶點數
 exports.getPoints = async (req, res) => {
   const { userId } = req.params;

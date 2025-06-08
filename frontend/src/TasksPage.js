@@ -10,12 +10,18 @@ function TasksPage() {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ title: '', date: '', description: '', id: null });
   const [error, setError] = useState('');
+  const [userPoints, setUserPoints] = useState(0);
   const calendarRef = useRef();
   const navigate = useNavigate();
 
   const token = localStorage.getItem('token');
   const api = axios.create({
     baseURL: 'http://localhost:5002/api',
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const userApi = axios.create({
+    baseURL: 'http://localhost:5001/api',
     headers: { Authorization: `Bearer ${token}` }
   });
 
@@ -28,8 +34,20 @@ function TasksPage() {
     }
   };
 
+  const fetchUserPoints = async () => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const userId = payload.id;
+      const response = await userApi.get(`/auth/users/${userId}/points`);
+      setUserPoints(response.data.points);
+    } catch (err) {
+      console.error('無法載入用戶點數:', err);
+    }
+  };
+
   useEffect(() => {
     fetchTasks();
+    fetchUserPoints();
     // eslint-disable-next-line
   }, []);
 
@@ -68,6 +86,7 @@ function TasksPage() {
       setShowForm(false);
       setFormData({ title: '', date: '', description: '', id: null });
       fetchTasks();
+      fetchUserPoints(); // 重新載入點數，因為完成任務可能會加點
     } catch {
       setError('儲存失敗');
     }
@@ -94,9 +113,20 @@ function TasksPage() {
 
   return (
     <div className="tasks-page">
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'20px'}}>
         <h2>任務月曆</h2>
-        <button onClick={handleLogout}>登出</button>
+        <div style={{display:'flex',alignItems:'center',gap:'15px'}}>
+          <div style={{background:'#4CAF50',color:'white',padding:'8px 15px',borderRadius:'20px',fontWeight:'bold'}}>
+            我的點數: {userPoints} 點
+          </div>
+          <button 
+            onClick={() => navigate('/store')}
+            style={{background:'#FF9800',color:'white',border:'none',padding:'10px 15px',borderRadius:'5px',cursor:'pointer'}}
+          >
+            點數商店
+          </button>
+          <button onClick={handleLogout}>登出</button>
+        </div>
       </div>
       <FullCalendar
         ref={calendarRef}

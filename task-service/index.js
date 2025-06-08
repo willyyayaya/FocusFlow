@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
 });
 
 const PORT = process.env.PORT || 5002;
-sequelize.sync({ alter: true }).then(() => {
+sequelize.sync({ force: true }).then(() => {
 app.listen(PORT, () => {
   console.log(`Task Service running on port ${PORT}`);
   });

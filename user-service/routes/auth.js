@@ -1,12 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
+const auth = require('../middleware/auth');
 
 // 註冊
 router.post('/register', authController.register);
 
 // 登入
 router.post('/login', authController.login);
+
+// 獲取當前用戶資訊 (需要認證)
+router.get('/me', auth, authController.me);
 
 // 驗證 token（給其他服務用）
 router.post('/verify', authController.verify);
