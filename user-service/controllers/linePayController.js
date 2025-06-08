@@ -43,7 +43,7 @@ exports.createPayment = async (req, res) => {
         }]
       }],
       redirectUrls: {
-        confirmUrl: `http://localhost:5001/api/linepay/confirm?orderId=${orderId}&userId=${userId}&points=${pointsToAdd}`,
+        confirmUrl: `http://localhost:5001/api/linepay/confirm?orderId=${orderId}&userId=${userId}&points=${pointsToAdd}&amount=${amount}`,
         cancelUrl: `http://localhost:3000/payment/cancel`
       }
     };
@@ -91,12 +91,12 @@ exports.createPayment = async (req, res) => {
 
 // 確認支付
 exports.confirmPayment = async (req, res) => {
-  const { transactionId, orderId, userId, points } = req.query;
+  const { transactionId, orderId, userId, points, amount } = req.query;
   
   try {
     const nonce = uuidv4();
     const requestBody = {
-      amount: req.query.amount || 100, // 從查詢參數獲取金額
+      amount: parseInt(amount) || 100, // 使用傳遞的金額
       currency: 'TWD'
     };
     

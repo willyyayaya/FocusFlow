@@ -8,12 +8,15 @@ function PointsStore() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const api = axios.create({
-    baseURL: 'http://localhost:5001/api',
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }
-  });
+  // 創建動態 API 實例
+  const getApiInstance = () => {
+    return axios.create({
+      baseURL: 'http://localhost:5001/api',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -22,7 +25,8 @@ function PointsStore() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/api/products');
+      const api = getApiInstance();
+      const response = await api.get('/products');
       setProducts(response.data);
     } catch (err) {
       setError('無法載入商品列表');
@@ -32,15 +36,17 @@ function PointsStore() {
   const fetchUserPoints = async () => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) return;
+      if (!token) {
+        setLoading(false);
+        return;
+      }
       
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const userId = payload.id;
-      
-      const response = await api.get(`/auth/users/${userId}/points`);
-      setUserPoints(response.data.points);
+      const api = getApiInstance();
+      const response = await api.get('/auth/me');
+      setUserPoints(response.data.user.points);
     } catch (err) {
       console.error('無法載入用戶點數:', err);
+      setError('無法載入用戶資訊');
     } finally {
       setLoading(false);
     }
@@ -56,6 +62,7 @@ function PointsStore() {
       setError('');
       setSuccess('');
       
+      const api = getApiInstance();
       const response = await api.post('/products/redeem', { productId });
       
       setSuccess(response.data.message);
@@ -76,6 +83,7 @@ function PointsStore() {
   const handleBuyPoints = async (amount, points) => {
     try {
       setError('');
+      const api = getApiInstance();
       const response = await api.post('/linepay/request', {
         amount: amount,
         pointsToAdd: points
