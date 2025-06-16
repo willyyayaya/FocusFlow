@@ -6,6 +6,7 @@ import TasksPage from './TasksPage';
 import PointsStore from './PointsStore';
 import QuestsPage from './QuestsPage';
 import PaymentResult from './PaymentResult';
+import Home from './Home';
 import './App.css';
 
 function App() {
@@ -20,7 +21,8 @@ function App() {
         <Route path="/payment/success" element={<PaymentResult />} />
         <Route path="/payment/error" element={<PaymentResult />} />
         <Route path="/payment/cancel" element={<PaymentResult />} />
-        <Route path="*" element={<Navigate to="/login" />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="*" element={<Navigate to="/home" />} />
       </Routes>
     </Router>
   );
